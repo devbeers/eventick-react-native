@@ -1,0 +1,282 @@
+'use strict';
+
+var React = require('react-native');
+var {
+  ActivityIndicatorIOS,
+  ListView,
+  Platform,
+  ProgressBarAndroid,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableHighlight,
+} = React;
+
+var EVENTICK_TOKEN_URL='https://www.eventick.com.br/api/v1/tokens.json';
+var EventsScreen = require('./EventsScreen.js');
+
+var LoginScreen = React.createClass({  
+  getInitialState: function() {
+    return {
+      emailText: '',
+      passwordText: '',
+      isLoading: false
+    };
+  },
+  
+  loadEventsScreen: function(eventickToken) {
+    if (Platform.OS === 'ios') {
+      this.props.navigator.push({
+        title: 'Events List',
+        component: EventsScreen,
+        passProps: {eventickToken},
+      });
+    } else {
+      dismissKeyboard();
+      this.props.navigator.push({
+        title: 'Events List',
+        name: 'events',
+        eventickToken: eventickToken,
+      });
+    }
+  },
+  
+  onLoginPressed: function() {
+    console.log(this.state.emailText);
+    console.log(this.state.passwordText);
+    this.setState({ isLoading: true });
+    
+    var accessToken = 'Basic ' + Base64.encode(this.state.emailText + ':' + this.state.passwordText);
+    
+    fetch(EVENTICK_TOKEN_URL, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': accessToken,
+      },
+    })
+    .then(res => res.json())
+    .then(json => {
+      this.setState({ isLoading: false });
+      this.loadEventsScreen(json.token);
+    })
+    .catch(err => {
+      this.setState({ isLoading: false });
+      
+      // TODO: Show feedback on why login failed
+    });
+  },
+  
+  render: function() {
+    // TODO: ActivityIndicator for Android?
+    var spinner = this.state.isLoading ?
+      ( <ActivityIndicatorIOS
+          hidden='true'
+          size='large'/> ) :
+      ( <View/>);
+    
+    return (
+      <View style={styles.container}>
+        <TextInput
+          style={styles.textInput}
+          onChangeText={(emailText) => this.setState({emailText})}
+          value={this.state.emailText}
+          placeholder="email"
+          autoCorrect={false}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.textInput}
+          onChangeText={(passwordText) => this.setState({passwordText})}
+          value={this.state.passwordText}
+          placeholder="password"
+          autoCorrect={false}
+          secureTextEntry={true}
+        />
+        <TouchableHighlight style={styles.button} 
+          underlayColor='#99d9f4'
+          onPress={this.onLoginPressed}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableHighlight>
+        {spinner}
+      </View>
+    );
+  },
+});
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+    padding: 20,
+  },
+  welcome: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 10,
+  },
+  textInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    padding: 10,
+    margin: 10
+  },
+  buttonText: {
+    fontSize: 18,
+    color: 'white',
+    alignSelf: 'center'
+  },
+  button: {
+    height: 36,
+    backgroundColor: '#48BBEC',
+    borderColor: '#48BBEC',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 10,
+    alignSelf: 'stretch',
+    justifyContent: 'center'
+  },
+});
+
+module.exports = LoginScreen;
+
+// TODO: Export base64 to separate class
+var Base64 = {
+  // private property
+  _keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+  // public method for encoding
+  encode : function (input) {
+      var output = "";
+      var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+      var i = 0;
+
+      input = Base64._utf8_encode(input);
+
+      while (i < input.length) {
+
+          chr1 = input.charCodeAt(i++);
+          chr2 = input.charCodeAt(i++);
+          chr3 = input.charCodeAt(i++);
+
+          enc1 = chr1 >> 2;
+          enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+          enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+          enc4 = chr3 & 63;
+
+          if (isNaN(chr2)) {
+              enc3 = enc4 = 64;
+          } else if (isNaN(chr3)) {
+              enc4 = 64;
+          }
+
+          output = output +
+          this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) +
+          this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
+
+      }
+
+      return output;
+  },
+
+  // public method for decoding
+  decode : function (input) {
+      var output = "";
+      var chr1, chr2, chr3;
+      var enc1, enc2, enc3, enc4;
+      var i = 0;
+
+      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+      while (i < input.length) {
+
+          enc1 = this._keyStr.indexOf(input.charAt(i++));
+          enc2 = this._keyStr.indexOf(input.charAt(i++));
+          enc3 = this._keyStr.indexOf(input.charAt(i++));
+          enc4 = this._keyStr.indexOf(input.charAt(i++));
+
+          chr1 = (enc1 << 2) | (enc2 >> 4);
+          chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+          chr3 = ((enc3 & 3) << 6) | enc4;
+
+          output = output + String.fromCharCode(chr1);
+
+          if (enc3 != 64) {
+              output = output + String.fromCharCode(chr2);
+          }
+          if (enc4 != 64) {
+              output = output + String.fromCharCode(chr3);
+          }
+
+      }
+
+      output = Base64._utf8_decode(output);
+
+      return output;
+
+  },
+
+  // private method for UTF-8 encoding
+  _utf8_encode : function (string) {
+      string = string.replace(/\r\n/g,"\n");
+      var utftext = "";
+
+      for (var n = 0; n < string.length; n++) {
+
+          var c = string.charCodeAt(n);
+
+          if (c < 128) {
+              utftext += String.fromCharCode(c);
+          }
+          else if((c > 127) && (c < 2048)) {
+              utftext += String.fromCharCode((c >> 6) | 192);
+              utftext += String.fromCharCode((c & 63) | 128);
+          }
+          else {
+              utftext += String.fromCharCode((c >> 12) | 224);
+              utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+              utftext += String.fromCharCode((c & 63) | 128);
+          }
+
+      }
+
+      return utftext;
+  },
+
+  // private method for UTF-8 decoding
+  _utf8_decode : function (utftext) {
+      var string = "";
+      var i = 0;
+      var c = c1 = c2 = 0;
+
+      while ( i < utftext.length ) {
+
+          c = utftext.charCodeAt(i);
+
+          if (c < 128) {
+              string += String.fromCharCode(c);
+              i++;
+          }
+          else if((c > 191) && (c < 224)) {
+              c2 = utftext.charCodeAt(i+1);
+              string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+              i += 2;
+          }
+          else {
+              c2 = utftext.charCodeAt(i+1);
+              c3 = utftext.charCodeAt(i+2);
+              string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+              i += 3;
+          }
+
+      }
+
+      return string;
+  }
+}
