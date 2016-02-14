@@ -6,8 +6,11 @@ var {
   StyleSheet,
   Text,
   View,
+  TouchableHighlight,
+  Platform
 } = React;
 
+var ParticipantsScreen = require('./ParticipantsScreen.js');
 var EVENTICK_EVENTS_URL = 'https://www.eventick.com.br/api/v1/events.json';
 
 var EventsScreen = React.createClass({
@@ -54,21 +57,38 @@ var EventsScreen = React.createClass({
         loaded: true,
         dataSource: this.state.dataSource.cloneWithRows(currentEvents),
       });
-    })
-    .catch(err => {
-      console.log(err);
     });
   },
   
   renderEvent: function(event) {
     return (
-      <View>
-        <View style={styles.event}>
-          <Text style={styles.eventTitle}>{event.title}</Text>
+      <TouchableHighlight onPress={() => this.onEventPressed(event)}>
+        <View>
+          <View style={styles.event}>
+            <Text style={styles.eventTitle}>{event.title}</Text>
+          </View>
+          <View style={styles.separator} />
         </View>
-        <View style={styles.separator} />
-      </View>
+      </TouchableHighlight>
     )
+  },
+  
+  onEventPressed: function(event) {
+    if (Platform.OS === 'ios') {
+      this.props.navigator.push({
+        title: event.title,
+        component: ParticipantsScreen,
+        passProps: { event: event, eventickToken: this.props.eventickToken},
+      });
+    } else {
+      dismissKeyboard();
+      this.props.navigator.push({
+        title: event.title,
+        name: 'participants',
+        event: event,
+        eventickToken: this.props.eventickToken
+      });
+    }
   },
   
   render: function() {
@@ -81,11 +101,13 @@ var EventsScreen = React.createClass({
     }
     
     return (
-      <ListView
-        dataSource={this.state.dataSource}
-        renderRow={this.renderEvent}
-        style={styles.eventsList}
-      />
+      <View style={styles.container}>
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this.renderEvent}
+          style={styles.eventsList}
+        />
+      </View>
     )
   },
 });
@@ -93,20 +115,16 @@ var EventsScreen = React.createClass({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#F5FCFF',
-    padding: 20,
   },
   eventsList: {
-    backgroundColor: '#F5FCFF',
+    marginTop: 64,
   },
   separator: {
     height: 1,
     backgroundColor: '#CCCCCC',
   },
   event: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     borderColor: 'black',
