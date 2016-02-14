@@ -45,7 +45,10 @@ var EventsScreen = React.createClass({
         var formattedDate = event.start_at.substr(0, 4) + '/' +
                             event.start_at.substr(5, 2) + '/' + 
                             event.start_at.substr(8);
-        if(new Date(formattedDate) > Date.now()) currentEvents.push(event);
+        
+        // Only show events in the future, or over for 2 days
+        var today = new Date();
+        if(new Date(formattedDate) > today.setDate(today.getDate() + 2)) currentEvents.push(event);
       });
       this.setState({
         loaded: true,
