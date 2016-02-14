@@ -69,13 +69,19 @@ var LoginScreen = React.createClass({
     });
   },
   
-  render: function() {
-    // TODO: ActivityIndicator for Android?
-    var spinner = this.state.isLoading ?
-      ( <ActivityIndicatorIOS
-          hidden='true'
-          size='large'/> ) :
-      ( <View/>);
+  render: function() {    
+    var spinner;
+    if(this.state.isLoading) {
+      if (Platform.OS === 'ios') {
+        spinner = ( <ActivityIndicatorIOS hidden='true' size='large' /> );
+      } else {
+        spinner = (
+          <View  style={{alignItems: 'center'}}>
+            <ProgressBarAndroid styleAttr="Large" />
+          </View>
+        );
+      }
+    }
     
     return (
       <View style={styles.container}>
