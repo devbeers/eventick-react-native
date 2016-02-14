@@ -27,6 +27,7 @@ var LoginScreen = React.createClass({
   },
   
   loadEventsScreen: function(eventickToken) {
+    eventickToken = 'Basic ' + Base64.encode(eventickToken + ':');
     if (Platform.OS === 'ios') {
       this.props.navigator.push({
         title: 'Events List',

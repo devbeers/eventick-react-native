@@ -8,7 +8,6 @@ var {
   View,
 } = React;
 
-var Base64 = require('./Base64.js');
 var EVENTICK_EVENTS_URL = 'https://www.eventick.com.br/api/v1/events.json';
 
 var EventsScreen = React.createClass({
@@ -25,19 +24,19 @@ var EventsScreen = React.createClass({
     this.getEvents();
   },
   
-  getEvents: function() {
-    console.log(this.props.eventickToken);
-    var accessToken = 'Basic ' + Base64.encode(this.props.eventickToken + ':');
-    
+  getEvents: function() {    
     fetch(EVENTICK_EVENTS_URL, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': accessToken
+        'Authorization': this.props.eventickToken
       },
     })
     .then(res => res.json())
+    .catch(err => {
+      console.log(err);
+    })
     .then(json => {
       var currentEvents = [];
       json.events.forEach(function(event) {
