@@ -11,6 +11,7 @@ var {
   View,
   TextInput,
   TouchableHighlight,
+  Alert,
 } = React;
 
 var Base64 = require('./Base64.js');
@@ -58,15 +59,25 @@ var LoginScreen = React.createClass({
       },
     })
     .then(res => res.json())
-    .then(json => {
-      this.setState({ isLoading: false });
-      this.loadEventsScreen(json.token);
-    })
     .catch(err => {
       this.setState({ isLoading: false });
       
-      // TODO: Show feedback on why login failed
+      displayAlert('Error', err.message);
+    })
+    .then(json => {
+      this.setState({ isLoading: false });
+      this.loadEventsScreen(json.token);
     });
+  },
+  
+  displayAlert: function(title, message) {
+    Alert.alert(
+      title,
+      message,
+      [
+        {text: 'OK', onPress: () => console.log('OK Pressed')},
+      ]
+    )
   },
   
   render: function() {    
