@@ -3,49 +3,98 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
-import React, {
+var React = require('react-native');
+var {
   AppRegistry,
-  Component,
+  BackAndroid,
+  Navigator,
   StyleSheet,
-  Text,
-  View
-} from 'react-native';
+  ToolbarAndroid,
+  View,
+} = React;
 
-class reactEventick extends Component {
-  render() {
+var LoginScreen = require('./LoginScreen');
+var EventsScreen = require('./EventsScreen');
+var ParticipantsScreen = require('./ParticipantsScreen');
+
+var _navigator;
+BackAndroid.addEventListener('hardwareBackPress', () => {
+  if (_navigator && _navigator.getCurrentRoutes().length > 1) {
+    _navigator.pop();
+    return true;
+  }
+  return false;
+});
+
+var RouteMapper = function(route, navigationOperations, onComponentRef) {
+  _navigator = navigationOperations;
+  if (route.name === 'login') {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Shake or press menu button for dev menu
-        </Text>
+      <LoginScreen navigator={navigationOperations} />
+    );
+  } else if (route.name === 'events') {
+    return (
+      <View style={{flex: 1}}>
+        <ToolbarAndroid
+          actions={[]}
+          navIcon={require('image!android_back_white')}
+          onIconClicked={navigationOperations.pop}
+          style={styles.toolbar}
+          titleColor="white"
+          title={route.title} />
+        <EventsScreen
+          style={{flex: 1}}
+          navigator={navigationOperations}
+          eventickToken={route.eventickToken}
+        />
+      </View>
+    );
+  } else if (route.name === 'participants') {
+    return (
+      <View style={{flex: 1}}>
+        <ToolbarAndroid
+          actions={[]}
+          navIcon={require('image!android_back_white')}
+          onIconClicked={navigationOperations.pop}
+          style={styles.toolbar}
+          titleColor="white"
+          title={route.event.title} />
+        <ParticipantsScreen
+          style={{flex: 1}}
+          navigator={navigationOperations}
+          event={route.event}
+          eventickToken={route.eventickToken}
+        />
       </View>
     );
   }
-}
+};
 
-const styles = StyleSheet.create({
+var reactEventick = React.createClass({
+  render: function() {
+    var initialRoute = {name: 'login'};
+    return (
+      <Navigator
+        style={styles.container}
+        initialRoute={initialRoute}
+        configureScene={() => Navigator.SceneConfigs.FadeAndroid}
+        renderScene={RouteMapper}
+      />
+    );
+  }
+});
+
+var styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: 'white',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+  toolbar: {
+    backgroundColor: '#a9a9a9',
+    height: 56,
   },
 });
 
 AppRegistry.registerComponent('reactEventick', () => reactEventick);
+
+module.exports = reactEventick;

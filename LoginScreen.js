@@ -14,6 +14,8 @@ var {
   Alert,
 } = React;
 
+var dismissKeyboard = require('dismissKeyboard');
+
 var Base64 = require('./Base64.js');
 var EVENTICK_TOKEN_URL='https://www.eventick.com.br/api/v1/tokens.json';
 var EventsScreen = require('./EventsScreen.js');

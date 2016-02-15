@@ -10,6 +10,8 @@ var {
   Platform
 } = React;
 
+var dismissKeyboard = require('dismissKeyboard');
+
 var ParticipantsScreen = require('./ParticipantsScreen.js');
 var EVENTICK_EVENTS_URL = 'https://www.eventick.com.br/api/v1/events.json';
 
@@ -51,7 +53,10 @@ var EventsScreen = React.createClass({
         
         // Only show events in the future, or over for 2 days
         var today = new Date();
-        if(new Date(formattedDate) > today.setDate(today.getDate() + 2)) currentEvents.push(event);
+        var eventDate = new Date(formattedDate);
+        if(eventDate > today.setDate(today.getDate() - 2)) {
+          currentEvents.push(event);
+        }
       });
       this.setState({
         loaded: true,
