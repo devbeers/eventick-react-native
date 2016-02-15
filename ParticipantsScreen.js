@@ -127,7 +127,7 @@ var ParticipantsScreen = React.createClass({
       }
     })
     .catch(err => {
-      console.log(err);
+      this.displayAlert('Error', err.message);
     });
   },
   
