@@ -131,6 +131,41 @@ var ParticipantsScreen = React.createClass({
     });
   },
   
+  shuffleArray: function(array) {
+    var shuffledArray = array.slice();
+    
+    for (var i = shuffledArray.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = shuffledArray[i];
+      shuffledArray[i] = shuffledArray[j];
+      shuffledArray[j] = temp;
+    }
+    return shuffledArray;
+  },
+  
+  onRandomPressed: function() {
+    // Randomize list
+    var shuffledParticipants = this.shuffleArray(resultsCache.participants);
+    
+    // Get checked in participants first
+    var randomParticipants = shuffledParticipants.filter(function(participant) {
+      if(participant.checked_at !== null) return participant;
+    });
+    
+    // Make sure there's at least 10 participants in array
+    if(randomParticipants.length < 10) {
+      randomParticipants = randomParticipants.concat(shuffledParticipants.slice(0, 10 - randomParticipants.length));
+    } else {
+      randomParticipants = randomParticipants.slice(0,10);
+    }
+    
+    var randomParticipantsMessage = randomParticipants.map(function(participant) {
+      return participant.name;
+    }).join('\n');
+    
+    this.displayAlert('Lucky!', randomParticipantsMessage);
+  },
+  
   displayAlert: function(title, message) {
     Alert.alert(
       title,
@@ -164,10 +199,16 @@ var ParticipantsScreen = React.createClass({
           renderRow={this.renderParticipant}
           styles={styles.participantsList}
         />
-        <TouchableHighlight style={styles.syncButton}
-          onPress={this.onSyncPressed}>
-          <Text style={styles.syncButtonText}>Sync</Text>
-        </TouchableHighlight>
+        <View style={styles.flowRight}>
+          <TouchableHighlight style={styles.button}
+            onPress={this.onRandomPressed}>
+            <Text style={styles.buttonText}>Random</Text>
+          </TouchableHighlight>
+          <TouchableHighlight style={styles.button}
+            onPress={this.onSyncPressed}>
+            <Text style={styles.buttonText}>Sync</Text>
+          </TouchableHighlight>
+        </View>
       </View>
     )
   }
@@ -179,13 +220,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF',
     marginTop: 64,
   },
-  syncButton: {
+  flowRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'stretch'
+  },
+  button: {
+    flex: 1,
     height:60,
     backgroundColor: '#48BBEC',
     alignSelf: 'stretch',
     justifyContent: 'center',
+    borderColor: '#FFFFFF',
+    borderWidth: 2,
   },
-  syncButtonText: {
+  buttonText: {
     fontSize: 18,
     color: 'white',
     alignSelf: 'center'
