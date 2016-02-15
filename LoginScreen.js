@@ -64,7 +64,7 @@ var LoginScreen = React.createClass({
     .catch(err => {
       this.setState({ isLoading: false });
       
-      displayAlert('Error', err.message);
+      this.displayAlert('Error', err.message);
     })
     .then(json => {
       this.setState({ isLoading: false });
