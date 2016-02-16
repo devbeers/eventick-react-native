@@ -24,6 +24,7 @@ var ParticipantsScreen = React.createClass({
   getInitialState: function() {
     return {
       loaded: false,
+      fetchedParticipants: [],
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
@@ -54,6 +55,7 @@ var ParticipantsScreen = React.createClass({
       this.setState({
         loaded: true,
         dataSource: this.state.dataSource.cloneWithRows(json.attendees),
+        fetchedParticipants: json.attendees,
       });
     });
   },
@@ -93,7 +95,7 @@ var ParticipantsScreen = React.createClass({
         checked_at: null,
       };
     }
-    resultsCache.participants = newParticipantsArray;
+    resultsCache.participants = newParticipantsArray;    
     this.setState({
       dataSource: this.state.dataSource.cloneWithRows(resultsCache.participants),
     });
@@ -102,33 +104,37 @@ var ParticipantsScreen = React.createClass({
   onSyncPressed: function() {
     var eventickCheckInURL = EVENTICK_CHECKIN_URL.replace(':event_id', this.props.event.id);
     
-    // TODO: Only send updated attendees
     var body = { attendees: [] };
     for(var i = 0; i < resultsCache.participants.length; i++) {
-      var participant = {};
-      participant.id = resultsCache.participants[i].id;
-      participant.checked_at = resultsCache.participants[i].checked_at;
-      body.attendees.push(participant);
+      if(resultsCache.participants[i].checked_at !== this.state.fetchedParticipants[i].checked_at) {
+        var participant = {};
+        participant.id = resultsCache.participants[i].id;
+        participant.checked_at = resultsCache.participants[i].checked_at;
+        body.attendees.push(participant);
+      }
     }
     
-    fetch(eventickCheckInURL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': this.props.eventickToken,
-      },
-      body: JSON.stringify(body),
-    })
-    .then(res => {
-      if(res.ok) {
-        this.displayAlert('Success', 'Checkin succesful');
-      } else {
-        this.displayAlert('Error', 'Network response error while checking in');
-      }
-    })
-    .catch(err => {
-      this.displayAlert('Error', err.message);
-    });
+    if (body.attendees.length > 0) {
+      fetch(eventickCheckInURL, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': this.props.eventickToken,
+        },
+        body: JSON.stringify(body),
+      })
+      .then(res => {
+        if(res.ok) {
+          this.displayAlert('Success', 'Checkin succesful');
+          this.state.fetchedParticipants = resultsCache.participants;
+        } else {
+          this.displayAlert('Error', 'Network response error while checking in');
+        }
+      })
+      .catch(err => {
+        this.displayAlert('Error', err.message);
+      });
+    }
   },
   
   shuffleArray: function(array) {
