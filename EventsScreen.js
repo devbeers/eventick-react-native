@@ -31,38 +31,44 @@ var EventsScreen = React.createClass({
   
   getEvents: function() {    
     fetch(EVENTICK_EVENTS_URL, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': this.props.eventickToken
-      },
-    })
-    .then(res => res.json())
-    .catch(err => {
-      console.log(err);
-    })
-    .then(json => {
-      var currentEvents = [];
-      json.events.forEach(function(event) {
-        // Date in React-native doesn't support the format 2014-02-12 20:00:00 -0200
-        // Changing 2014-02-12 to 2014/02/12 works
-        var formattedDate = event.start_at.substr(0, 4) + '/' +
-                            event.start_at.substr(5, 2) + '/' + 
-                            event.start_at.substr(8);
-        
-        // Only show events in the future, or over for 2 days
-        var today = new Date();
-        var eventDate = new Date(formattedDate);
-        if(eventDate > today.setDate(today.getDate() - 2)) {
-          currentEvents.push(event);
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': this.props.eventickToken
+        },
+      })
+      .then(res => { 
+        if(res.ok) {
+          return res.json();
+        } else {
+          return Promise.reject(new Error(res.statusText));
         }
+      })
+      .then(json => {
+        var currentEvents = [];
+        json.events.forEach(function(event) {
+          // Date in React-native doesn't support the format 2014-02-12 20:00:00 -0200
+          // Changing 2014-02-12 to 2014/02/12 works
+          var formattedDate = event.start_at.substr(0, 4) + '/' +
+                              event.start_at.substr(5, 2) + '/' + 
+                              event.start_at.substr(8);
+          
+          // Only show events in the future, or over for 2 days
+          var today = new Date();
+          var eventDate = new Date(formattedDate);
+          if(eventDate > today.setDate(today.getDate() - 2)) {
+            currentEvents.push(event);
+          }
+        });
+        this.setState({
+          loaded: true,
+          dataSource: this.state.dataSource.cloneWithRows(currentEvents),
+        });
+      })
+      .catch(err => {
+        console.log(err);
       });
-      this.setState({
-        loaded: true,
-        dataSource: this.state.dataSource.cloneWithRows(currentEvents),
-      });
-    });
   },
   
   renderEvent: function(event) {

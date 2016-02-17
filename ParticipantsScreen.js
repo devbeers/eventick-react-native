@@ -116,24 +116,24 @@ var ParticipantsScreen = React.createClass({
     
     if (body.attendees.length > 0) {
       fetch(eventickCheckInURL, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': this.props.eventickToken,
-        },
-        body: JSON.stringify(body),
-      })
-      .then(res => {
-        if(res.ok) {
-          this.displayAlert('Success', 'Checkin succesful');
-          this.state.fetchedParticipants = resultsCache.participants;
-        } else {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': this.props.eventickToken,
+          },
+          body: JSON.stringify(body),
+        })
+        .then(res => {
+          if(res.ok) {
+            this.displayAlert('Success', 'Checkin succesful');
+            this.state.fetchedParticipants = resultsCache.participants;
+          } else {
+            return Promise.reject(new Error(res.statusText));
+          }
+        })
+        .catch(err => {
           this.displayAlert('Error', 'Network response error while checking in');
-        }
-      })
-      .catch(err => {
-        this.displayAlert('Error', err.message);
-      });
+        });
     }
   },
   

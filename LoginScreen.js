@@ -53,23 +53,29 @@ var LoginScreen = React.createClass({
     var accessToken = 'Basic ' + Base64.encode(this.state.emailText + ':' + this.state.passwordText);
     
     fetch(EVENTICK_TOKEN_URL, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': accessToken,
-      },
-    })
-    .then(res => res.json())
-    .catch(err => {
-      this.setState({ isLoading: false });
-      
-      this.displayAlert('Error', err.message);
-    })
-    .then(json => {
-      this.setState({ isLoading: false });
-      this.loadEventsScreen(json.token);
-    });
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': accessToken,
+        },
+      })
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          return Promise.reject(new Error(res.statusText));
+        }
+      })
+      .then(json => {
+        this.setState({ isLoading: false });
+        this.loadEventsScreen(json.token);
+      })
+      .catch(err => {
+        this.setState({ isLoading: false });
+        
+        this.displayAlert('Error', 'An error occurred when logging in. Please check your credentials and try again.');
+      })
   },
   
   displayAlert: function(title, message) {
