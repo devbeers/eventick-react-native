@@ -10,6 +10,8 @@ var {
   Alert
 } = React;
 
+var SearchBar = require('SearchBar');
+
 var EVENTICK_PARTICIPANTS_URL = 'https://www.eventick.com.br/api/v1/events/:event_id/attendees.json';
 var EVENTICK_CHECKIN_URL = 'https://www.eventick.com.br/api/v1/events/:event_id/attendees/check_all.json';
 
@@ -19,7 +21,7 @@ var resultsCache = {
 
 var ParticipantsScreen = React.createClass({
   // TODO: Show loading spinner when syncing checkins
-  // TODO: Display search bar to search based on name
+  // TODO: When pressing sync, pull latest changes from server
   
   getInitialState: function() {
     return {
@@ -58,19 +60,6 @@ var ParticipantsScreen = React.createClass({
         fetchedParticipants: json.attendees,
       });
     });
-  },
-  
-  renderParticipant: function(participant) {
-    return (
-      <TouchableHighlight onPress={() => this.onParticipantPressed(participant)}>
-        <View>  
-          <View style={[styles.participantRow, participant.checked_at && styles.participantCheckedIn]}>
-            <Text style={styles.participant}>{participant.name}</Text>
-          </View>
-          <View style={styles.separator} />
-        </View>
-      </TouchableHighlight>
-    );
   },
   
   onParticipantPressed: function(participant) {
@@ -182,7 +171,33 @@ var ParticipantsScreen = React.createClass({
     )
   },
   
+  onSearchChange: function(event: Object) {
+    var filter = event.nativeEvent.text.toLowerCase();
+    
+    this.setState({
+      dataSource: this.state.dataSource.cloneWithRows(
+        resultsCache.participants.filter(function(participant) {
+          return participant.name.toLowerCase().match(filter);
+      })),
+    });
+  },
+  
+  renderParticipant: function(participant) {
+    return (
+      <TouchableHighlight onPress={() => this.onParticipantPressed(participant)}>
+        <View>  
+          <View style={[styles.participantRow, participant.checked_at && styles.participantCheckedIn]}>
+            <Text style={styles.participant}>{participant.name}</Text>
+          </View>
+          <View style={styles.separator} />
+        </View>
+      </TouchableHighlight>
+    );
+  },
+  
   render: function() {
+    var content;
+    
     if(!this.state.loaded) {
       // TODO: Add loading spinner
       return (
@@ -190,21 +205,37 @@ var ParticipantsScreen = React.createClass({
           <Text>Loading...</Text>
         </View>
       );
-    } else if(this.state.dataSource.getRowCount() === 0) {
-      return (
-        <View style={styles.loading}>
-          <Text>No participants for this event</Text>
-        </View>
-      );
+    } else {      
+      if(resultsCache.participants.length === 0) {
+        content = <View style={styles.loading}>
+            <Text>No participants for this event</Text>
+          </View>;
+      }
+      else if(this.state.dataSource.getRowCount() === 0) {
+        content = <View style={styles.loading}>
+            <Text>No participants for this search</Text>
+          </View>;
+      } else {
+        content = 
+          <ListView
+            ref="listview"
+            dataSource={this.state.dataSource}
+            renderRow={this.renderParticipant}
+            styles={styles.participantsList}
+          />;
+      }
     }
     
     return (
       <View style={styles.container}>
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this.renderParticipant}
-          styles={styles.participantsList}
+        <SearchBar
+          onSearchChange={this.onSearchChange}
+          isLoading={this.state.loaded}
+          onFocus={() =>
+            this.refs.listview && this.refs.listview.getScrollResponder().scrollTo(0)}
         />
+        <View style={styles.separator} />
+        {content}
         <View style={styles.flowRight}>
           <TouchableHighlight style={styles.button}
             onPress={this.onRandomPressed}>
