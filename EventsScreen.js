@@ -126,7 +126,7 @@ var EventsScreen = React.createClass({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#FEFEFE',
   },
   eventsList: {
     marginTop: 64,
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     padding: 30,
   },
   eventTitle: {
-    fontFamily: 'Verdana',
+    fontFamily: 'Helvetica Neue',
     fontSize: 20,
     color: 'black'
   },

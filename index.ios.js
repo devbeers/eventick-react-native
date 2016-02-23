@@ -18,6 +18,8 @@ var reactEventick = React.createClass({
     return (
       <NavigatorIOS
         style={styles.container}
+        barTintColor='#FFC107'
+        tintColor='black'
         initialRoute={{
           title: 'Eventick Login',
           component: LoginScreen,

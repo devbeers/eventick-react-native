@@ -254,7 +254,7 @@ var ParticipantsScreen = React.createClass({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#FEFEFE',
     marginTop: 64,
   },
   flowRight: {
@@ -265,13 +265,14 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     height:60,
-    backgroundColor: '#48BBEC',
+    backgroundColor: '#2196F3',
     alignSelf: 'stretch',
     justifyContent: 'center',
-    borderColor: '#FFFFFF',
+    borderColor: '#FEFEFE',
     borderWidth: 2,
   },
   buttonText: {
+    fontFamily: 'Helvetica Neue',
     fontSize: 18,
     color: 'white',
     alignSelf: 'center'
@@ -284,17 +285,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#FEFEFE',
     padding: 20,
   },
   participantsList: {
     marginTop: 64,
   },
   participant: {
+    fontFamily: 'Helvetica Neue',
     textAlign: 'left',
   },
   participantRow: {
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#FEFEFE',
     padding: 20,
   },
   participantCheckedIn: {

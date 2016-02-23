@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#FEFEFE',
     padding: 20,
   },
   welcome: {
@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   textInput: {
+    fontFamily: 'Helvetica Neue',
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
@@ -153,17 +154,16 @@ const styles = StyleSheet.create({
     margin: 10
   },
   buttonText: {
+    fontFamily: 'Helvetica Neue',
     fontSize: 18,
     color: 'white',
     alignSelf: 'center'
   },
   button: {
     height: 36,
-    backgroundColor: '#48BBEC',
-    borderColor: '#48BBEC',
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 10,
+    backgroundColor: '#2196F3',
+    padding: 10,
+    margin: 10,
     alignSelf: 'stretch',
     justifyContent: 'center'
   },

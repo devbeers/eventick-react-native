@@ -90,7 +90,7 @@ var styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   toolbar: {
-    backgroundColor: '#a9a9a9',
+    backgroundColor: '#FFC107',
     height: 56,
   },
 });
