@@ -188,6 +188,7 @@ var ParticipantsScreen = React.createClass({
         <View>  
           <View style={[styles.participantRow, participant.checked_at && styles.participantCheckedIn]}>
             <Text style={styles.participant}>{participant.name}</Text>
+            <Text style={styles.participantTicket}>{participant.ticket_type}</Text>
           </View>
           <View style={styles.separator} />
         </View>
@@ -294,6 +295,11 @@ const styles = StyleSheet.create({
   participant: {
     fontFamily: 'Helvetica Neue',
     textAlign: 'left',
+  },
+  participantTicket: {
+    fontFamily: 'Helvetica Neue',
+    textAlign: 'left',
+    color: '#BBBBBB',
   },
   participantRow: {
     backgroundColor: '#FEFEFE',
